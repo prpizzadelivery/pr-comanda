@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR Pizza - Atendente Automático</title>
+<meta name="theme-color" content="#b1121d">
+<style>
+:root {
+  --red:#b1121d; --red2:#e42b32; --gold:#ffbd44; --dark:#211512;
+  --cream:#fff6e8; --line:#efdcc9; --muted:#7a6255; --green:#159447;
+  --card:#fffaf4; --shadow:0 18px 45px rgba(67,28,17,.16);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  background:linear-gradient(180deg,#fff3dd,#fffaf4 45%,#fff1e1);
+  color:var(--dark); padding-bottom:110px;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer} button:disabled{opacity:.55;cursor:not-allowed}
+.hide{display:none!important}
+.header{
+  background:radial-gradient(circle at top right,rgba(255,189,68,.35),transparent 26%),
+  linear-gradient(135deg,#1b1110,#3a1715 48%,var(--red));
+  color:#fff; padding:18px 14px 22px; border-radius:0 0 30px 30px; box-shadow:var(--shadow);
+}
+.top{max-width:1150px;margin:auto;display:flex;gap:14px;align-items:center}
+.logo{width:76px;height:76px;border-radius:24px;background:#fff;color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:29px;border:3px solid rgba(255,255,255,.6);box-shadow:0 12px 24px rgba(0,0,0,.22)}
+.brand h1{margin:0;font-size:27px;line-height:1}
+.brand p{margin:7px 0 0;color:#ffe3ae;font-weight:900}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);padding:7px 11px;border-radius:999px;margin-top:10px;font-weight:1000;font-size:13px}
+.wrap{max-width:1150px;margin:auto;padding:14px}
+.tabs{position:sticky;top:0;z-index:20;background:rgba(255,246,232,.92);backdrop-filter:blur(9px);padding:10px 0;display:flex;gap:8px;overflow:auto}
+.tab{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;font-weight:1000;color:#44251f;box-shadow:0 8px 20px rgba(80,34,20,.08);white-space:nowrap}
+.tab.active{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border-color:transparent}
+h2{margin:14px 0 8px;font-size:25px}
+h3{margin:0 0 8px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 30px rgba(67,28,17,.09);overflow:hidden}
+.pad{padding:14px}
+.row{display:grid;grid-template-columns:1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr;gap:8px}
+label{font-size:13px;font-weight:1000;color:#3e241d;display:block;margin:8px 0 5px}
+input,select,textarea{width:100%;border:1px solid #ecd8c6;border-radius:16px;padding:12px;background:#fff;outline:none;color:#2b1713}
+textarea{min-height:74px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(177,18,29,.08)}
+.btn{border:0;border-radius:18px;padding:13px 15px;font-weight:1000;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.btnRed{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;box-shadow:0 10px 24px rgba(177,18,29,.22)}
+.btnGold{background:linear-gradient(135deg,#ffb632,#ffd66e);color:#351b10}
+.btnGreen{background:linear-gradient(135deg,#118740,#17ad56);color:#fff}
+.btnLight{background:#fff;border:1px solid var(--line);color:#3c211b}
+.btnSmall{width:auto;padding:9px 12px;border-radius:14px;font-size:13px}
+.actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.actions .btn{width:auto}
+.quickGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.choice{border:1px solid #e8b75a;background:#fffdfa;border-radius:18px;padding:12px;text-align:left}
+.choice b{display:block}
+.choice span{font-size:12px;color:var(--muted)}
+.choice.active{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border-color:transparent}
+.choice.active span{color:#ffe6bb}
+.item,.pedido,.stockItem,.movItem{display:grid;gap:8px;padding:11px;background:#fffdfa;border:1px solid #e6a43a;border-radius:18px;margin-bottom:9px}
+.itemTop,.pedidoTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.item b,.stockItem b{font-size:15px}
+.item small,.stockItem small,.pedido small{display:block;color:#6f2b0e;font-weight:800;margin-top:4px}
+.price{color:var(--red);font-weight:1000;white-space:nowrap}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:34px;height:34px;border-radius:12px;border:0;background:#f7e8d8;font-weight:1000}
+.qty span{min-width:24px;text-align:center;font-weight:1000}
+.note{background:#fff5dc;border-left:4px solid var(--gold);padding:10px 12px;border-radius:14px;color:#5d3a18;font-size:13px}
+.success{background:#eaffef;border-left-color:var(--green);color:#14532d}
+.warn{background:#fff0e6;border-left-color:#f97316;color:#7c2d12}
+.status{display:inline-flex;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:1000;background:#fff0c2;color:#7c4b00}
+.status.ok{background:#dcfce7;color:#166534}
+.status.bad{background:#fee2e2;color:#991b1b}
+.pedidoText{white-space:pre-wrap;background:#fff8ee;border-radius:14px;padding:10px;font-size:12px;color:#2b1713;max-height:190px;overflow:auto}
+.kpiGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+.kpi b{display:block;font-size:20px;color:var(--red)}
+.stockBadge{display:inline-flex;width:max-content;background:#eaffef;color:#14532d;border:1px solid #9bd8ad;border-radius:999px;padding:4px 8px;font-weight:1000;font-size:12px}
+.stockBadge.low{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+.editorBox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px;margin-top:8px;display:grid;gap:8px}
+.cartBar{position:fixed;left:10px;right:10px;bottom:10px;z-index:50;max-width:1120px;margin:auto;background:#21120d;color:#fff;border:2px solid var(--gold);border-radius:24px;padding:10px;display:flex;align-items:center;gap:10px;box-shadow:0 18px 45px rgba(0,0,0,.32)}
+.cartInfo{flex:1;min-width:0}
+.cartInfo b{display:block}
+.cartInfo span{display:block;color:#ffe28a;font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cartBar .btn{width:auto;white-space:nowrap}
+.totalBox{background:#21120d;color:#fff;border:2px solid var(--gold);border-radius:20px;padding:13px;margin-top:12px}
+.line{display:flex;justify-content:space-between;padding:5px 0;color:#fff2d4}
+.line.big{border-top:1px solid rgba(255,255,255,.15);margin-top:7px;padding-top:10px;color:#fff;font-size:22px;font-weight:1000}
+.line.big b{color:#ffbd44}
+.toast{position:fixed;left:50%;bottom:126px;transform:translateX(-50%);z-index:200;background:#241612;color:#fff;border-radius:999px;padding:11px 14px;font-size:13px;font-weight:900;display:none;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.show{display:block}
+.autoPanel{background:#eaffef;border:1px solid #9bd8ad;border-left:4px solid var(--green);border-radius:18px;padding:12px;margin:12px 0;display:grid;gap:8px;color:#14532d}
+.autoPanel label{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #cdeed5;border-radius:14px;padding:9px;margin:0}
+.autoPanel input[type="checkbox"]{width:auto}
+@media(min-width:760px){
+  .grid{grid-template-columns:1fr 1fr}
+  .row{grid-template-columns:1fr 1fr}
+  .row3{grid-template-columns:repeat(3,1fr)}
+  .quickGrid{grid-template-columns:repeat(4,1fr)}
+  .kpiGrid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:620px){
+  .header{padding:12px 10px 15px;border-radius:0 0 22px 22px}
+  .logo{width:60px;height:60px;border-radius:18px;font-size:24px}
+  .brand h1{font-size:22px}
+  .brand p{font-size:12px}
+  .wrap{padding:10px}
+  .tab{padding:9px 12px;font-size:13px}
+  h2{font-size:23px}
+  .cartBar{padding:8px;border-radius:19px}
+  .cartBar .btn{padding:10px 12px;font-size:13px}
+  .cartInfo b{font-size:13px}
+  .cartInfo span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+}
+@media print{
+  .header,.tabs,.cartBar,.btn,.actions,#lancar,#editarTudo,#estoque,#caixa{display:none!important}
+  body{background:#fff;padding:0}
+  .wrap{max-width:none;padding:0}
+  .pedido{break-inside:avoid;border:1px solid #999;box-shadow:none;background:#fff}
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="top">
+    <div class="logo">PR</div>
+    <div class="brand">
+      <h1 id="uiStoreName">PR Pizza</h1>
+      <p id="uiStoreSub">Atendente • WhatsApp • Estoque • Caixa</p>
+      <div class="badge">🤖 Automático e 100% editável</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs">
+    <button class="tab active" onclick="go('lancar')">📝 Anotar pedido</button>
+    <button class="tab" onclick="go('pedidos')">📦 Pedidos</button>
+    <button class="tab" onclick="go('estoque')">📦 Estoque</button>
+    <button class="tab" onclick="go('caixa')">💰 Caixa</button>
+    <button class="tab" onclick="go('editarTudo')">⚙️ Editar tudo</button>
+  </nav>
+
+  <div class="autoPanel">
+    <h3>🤖 Automação</h3>
+    <label><input id="autoTudo" type="checkbox" onchange="setAuto('tudoAutomatico',this.checked)"> Tudo automático ao salvar pedido</label>
+    <label><input id="autoEstoque" type="checkbox" onchange="setAuto('estoqueAutomatico',this.checked)"> Criar/vincular estoque automático</label>
+    <label><input id="autoCaixa" type="checkbox" onchange="setAuto('caixaAutomatico',this.checked)"> Registrar no caixa automático</label>
+    <label><input id="autoPrint" type="checkbox" onchange="setAuto('imprimirAutomatico',this.checked)"> Imprimir automático ao salvar</label>
+  </div>
+
+  <section id="lancar">
+    <h2>📝 Anotar pedido recebido pelo WhatsApp</h2>
+    <div class="grid">
+      <div class="card pad">
+        <h3>👤 Dados do cliente</h3>
+        <div class="row">
+          <div><label>Nome do cliente</label><input id="clientName" placeholder="Ex: Maria"></div>
+          <div><label>Telefone</label><input id="clientPhone" placeholder="Ex: (77) 99999-9999"></div>
+        </div>
+        <div class="row">
+          <div><label>Tipo de pedido</label><select id="orderType" onchange="toggleType()"></select></div>
+          <div id="mesaBox" class="hide"><label>Número da mesa</label><input id="mesaNum" type="number" min="1" placeholder="Ex: 4"></div>
+        </div>
+        <div id="addressBox"><label>Endereço do cliente</label><textarea id="clientAddress" placeholder="Rua, número, bairro e referência"></textarea></div>
+        <div class="row">
+          <div><label>Pagamento</label><select id="payment" onchange="toggleChange()"></select></div>
+          <div id="changeBox" class="hide"><label>Troco para quanto?</label><input id="changeFor" placeholder="Ex: R$ 100,00"></div>
+        </div>
+        <label>Taxa de entrega</label>
+        <div class="quickGrid" id="taxGrid"></div>
+        <input id="deliveryFee" type="number" min="0" step="0.01" value="3" oninput="syncTaxButtons();renderCart()" placeholder="Ou digite outro valor" style="margin-top:8px">
+        <label>Observação geral</label><input id="generalObs" placeholder="Ex: chamar no portão">
+      </div>
+
+      <div class="card pad">
+        <h3>🍕 Lançar item do cardápio</h3>
+        <label>Tipo de item</label>
+        <select id="tipoItem" onchange="renderTipo()">
+          <option value="pizza">Pizza</option>
+          <option value="esfiha">Esfiha</option>
+          <option value="bebida">Bebida</option>
+          <option value="extra">Extra</option>
+          <option value="manual">Item manual</option>
+        </select>
+
+        <div id="pizzaBox">
+          <div class="row">
+            <div><label>Tamanho</label><select id="pizzaTamanho" onchange="renderResumoItem()"></select></div>
+            <div><label>Borda</label><select id="pizzaBorda" onchange="renderResumoItem()"></select></div>
+          </div>
+          <label>Sabores</label>
+          <select id="pizzaSabor1" onchange="renderResumoItem()"></select>
+          <select id="pizzaSabor2" onchange="renderResumoItem()" style="margin-top:8px"></select>
+          <select id="pizzaSabor3" onchange="renderResumoItem()" style="margin-top:8px"></select>
+          <label>Observação da pizza</label>
+          <textarea id="pizzaObs" placeholder="Ex: sem cebola, bem assada, pouco molho..." oninput="renderResumoItem()"></textarea>
+        </div>
+
+        <div id="simpleBox" class="hide">
+          <label>Buscar produto</label><input id="produtoSearch" placeholder="Digite para filtrar" oninput="renderProdutoSelect()">
+          <label>Produto</label><select id="produtoSelect" onchange="renderResumoItem()"></select>
+        </div>
+
+        <div id="manualBox" class="hide">
+          <label>Nome do item</label><input id="manualNome" placeholder="Ex: produto especial" oninput="renderResumoItem()">
+          <label>Valor</label><input id="manualPreco" type="number" min="0" step="0.01" placeholder="Ex: 15" oninput="renderResumoItem()">
+        </div>
+
+        <div class="row">
+          <div><label>Quantidade</label><input id="itemQtd" type="number" min="1" value="1" oninput="renderResumoItem()"></div>
+          <div><label>Observação do item</label><input id="itemObs" placeholder="Ex: sem gelo, cortar..." oninput="renderResumoItem()"></div>
+        </div>
+        <div class="note" id="resumoItem">Escolha o item para lançar.</div>
+        <button class="btn btnRed" style="margin-top:10px" onclick="adicionarItem()">Adicionar no pedido</button>
+      </div>
+
+      <div class="card pad">
+        <h3>🧾 Pedido atual</h3>
+        <div id="cartItems"></div>
+        <div class="totalBox" id="totalBox"></div>
+        <button class="btn btnGreen" onclick="salvarPedido(false)">Salvar pedido automático</button>
+        <button class="btn btnGold" style="margin-top:8px" onclick="salvarPedido(true)">Salvar e imprimir</button>
+        <button class="btn btnLight" style="margin-top:8px" onclick="imprimirPedidoAtual()">Imprimir pedido atual</button>
+        <button class="btn btnGold" style="margin-top:8px" onclick="copiarPedidoAtual()">Copiar pedido final</button>
+        <button class="btn btnLight" style="margin-top:8px" onclick="limparAtual()">Limpar pedido atual</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pedidos" class="hide">
+    <h2>📦 Pedidos salvos</h2>
+    <div class="note">Pedidos salvos automaticamente no painel, no caixa, no estoque e no Firebase quando publicado.</div>
+    <div class="actions" style="margin:12px 0">
+      <button class="btn btnSmall btnLight" onclick="renderPedidos()">Atualizar</button>
+      <button class="btn btnSmall btnGold" onclick="exportarPedidos()">Copiar todos</button>
+      <button class="btn btnSmall btnLight" onclick="limparFinalizados()">Limpar finalizados</button>
+    </div>
+    <div id="pedidoList"></div>
+  </section>
+
+  <section id="estoque" class="hide">
+    <h2>📦 Estoque automático e editável</h2>
+    <div class="note success">O estoque cria vínculo sozinho com bebidas, esfihas e extras. Você pode editar tudo manualmente.</div>
+    <div class="actions" style="margin:12px 0">
+      <button class="btn btnSmall btnGreen" onclick="autoLinkStock(false)">Criar/vincular estoque automático</button>
+      <button class="btn btnSmall btnLight" onclick="renderEstoque()">Atualizar</button>
+      <button class="btn btnSmall btnGold" onclick="exportarEstoque()">Copiar estoque</button>
+      <button class="btn btnSmall btnLight" onclick="mostrarMovimentosEstoque()">Histórico</button>
+    </div>
+    <div class="grid">
+      <div class="card pad">
+        <h3>➕ Novo item no estoque</h3>
+        <div class="row">
+          <input id="stockName" placeholder="Nome do item">
+          <input id="stockCat" placeholder="Categoria">
+        </div>
+        <div class="row3">
+          <input id="stockQty" type="number" step="0.01" placeholder="Quantidade">
+          <input id="stockUnit" placeholder="Unidade: un, kg, L" value="un">
+          <input id="stockMin" type="number" step="0.01" placeholder="Mínimo">
+        </div>
+        <div class="row">
+          <input id="stockCost" type="number" step="0.01" placeholder="Custo unitário">
+          <input id="stockLink" placeholder="Vincular produto/cardápio">
+        </div>
+        <button class="btn btnRed" onclick="addStock()">Adicionar ao estoque</button>
+      </div>
+      <div class="card pad">
+        <h3>⚠️ Alertas de estoque</h3>
+        <div id="stockAlerts"></div>
+      </div>
+    </div>
+    <div id="stockList" style="margin-top:12px"></div>
+    <div id="stockMovList" style="margin-top:12px"></div>
+  </section>
+
+  <section id="caixa" class="hide">
+    <h2>💰 Caixa automático</h2>
+    <div class="note">O pedido salvo entra automaticamente no caixa. Você também pode lançar entrada, saída e sangria manual.</div>
+    <div class="kpiGrid" id="caixaResumo"></div>
+    <div class="grid">
+      <div class="card pad">
+        <h3>🟢 Abrir / fechar caixa</h3>
+        <label>Valor inicial do caixa</label><input id="caixaInicial" type="number" step="0.01" placeholder="Ex: 100">
+        <button class="btn btnGreen" onclick="abrirCaixa()">Abrir caixa</button>
+        <button class="btn btnLight" style="margin-top:8px" onclick="fecharCaixa()">Fechar caixa</button>
+        <div id="caixaStatus" class="note" style="margin-top:8px"></div>
+      </div>
+      <div class="card pad">
+        <h3>➕ Movimento manual</h3>
+        <div class="row">
+          <div><label>Tipo</label><select id="movTipo"><option value="entrada">Entrada</option><option value="saida">Saída/Sangria</option></select></div>
+          <div><label>Forma</label><select id="movForma"></select></div>
+        </div>
+        <label>Valor</label><input id="movValor" type="number" step="0.01" placeholder="Ex: 20">
+        <label>Descrição</label><input id="movDesc" placeholder="Ex: sangria, compra, reforço de caixa">
+        <button class="btn btnRed" onclick="addMovCaixa()">Registrar movimento</button>
+      </div>
+    </div>
+    <div class="actions" style="margin:12px 0">
+      <button class="btn btnSmall btnLight" onclick="renderCaixa()">Atualizar</button>
+      <button class="btn btnSmall btnGold" onclick="copiarResumoCaixa()">Copiar resumo</button>
+      <button class="btn btnSmall btnLight" onclick="limparCaixa()">Limpar caixa</button>
+    </div>
+    <div id="caixaList"></div>
+  </section>
+
+  <section id="editarTudo" class="hide">
+    <h2>⚙️ Editar tudo</h2>
+    <div class="note success">Aqui você edita todos os detalhes do sistema do atendente.</div>
+
+    <div class="grid">
+      <div class="card pad">
+        <h3>🏪 Loja e visual</h3>
+        <label>Nome da loja</label><input id="cfgNomeLoja">
+        <label>Subtítulo</label><input id="cfgSubtitulo">
+        <label>WhatsApp</label><input id="cfgWhats">
+        <label>Endereço retirada</label><input id="cfgEndereco">
+        <div class="row3">
+          <div><label>Cor principal</label><input id="cfgCor1" type="color"></div>
+          <div><label>Cor secundária</label><input id="cfgCor2" type="color"></div>
+          <div><label>Cor destaque</label><input id="cfgCor3" type="color"></div>
+        </div>
+        <button class="btn btnRed" onclick="saveGeneralConfig()">Salvar loja/visual</button>
+      </div>
+
+      <div class="card pad">
+        <h3>🤖 Automação editável</h3>
+        <label><input id="cfgAutoTudo" type="checkbox" style="width:auto"> Tudo automático</label>
+        <label><input id="cfgAutoEstoque" type="checkbox" style="width:auto"> Estoque automático</label>
+        <label><input id="cfgAutoCaixa" type="checkbox" style="width:auto"> Caixa automático</label>
+        <label><input id="cfgAutoPrint" type="checkbox" style="width:auto"> Impressão automática</label>
+        <label><input id="cfgAlertaEstoque" type="checkbox" style="width:auto"> Alerta de estoque baixo</label>
+        <button class="btn btnRed" onclick="saveAutomationConfig()">Salvar automação</button>
+      </div>
+
+      <div class="card pad">
+        <h3>🚚 Taxas rápidas</h3>
+        <div id="editTaxas"></div>
+        <div class="row"><input id="newTaxa" type="number" step="0.01" placeholder="Nova taxa"><button class="btn btnRed" onclick="addListValue('taxas','newTaxa')">Adicionar taxa</button></div>
+      </div>
+
+      <div class="card pad">
+        <h3>💳 Pagamentos</h3>
+        <div id="editPagamentos"></div>
+        <div class="row"><input id="newPagamento" placeholder="Nova forma"><button class="btn btnRed" onclick="addListValue('pagamentos','newPagamento')">Adicionar pagamento</button></div>
+      </div>
+
+      <div class="card pad">
+        <h3>📌 Status</h3>
+        <div id="editStatus"></div>
+        <div class="row"><input id="newStatus" placeholder="Novo status"><button class="btn btnRed" onclick="addListValue('status','newStatus')">Adicionar status</button></div>
+      </div>
+
+      <div class="card pad">
+        <h3>🧾 Modelo do pedido</h3>
+        <label>Modelo do item</label><textarea id="cfgModeloItem"></textarea>
+        <label>Modelo do pedido finalizado</label><textarea id="cfgModeloPedido" style="min-height:180px"></textarea>
+        <div class="note">Campos: {numero}, {loja}, {origem}, {itens}, {subtotal}, {taxa}, {total}, {cliente}, {telefone}, {tipo}, {linhaEndereco}, {linhaMesa}, {pagamento}, {linhaTroco}, {observacao}</div>
+        <button class="btn btnRed" onclick="saveTemplateConfig()">Salvar modelo</button>
+      </div>
+
+      <div class="card pad">
+        <h3>🍕 Pizzas</h3>
+        <div class="row"><input id="newPizzaNome" placeholder="Nome"><input id="newPizzaDesc" placeholder="Ingredientes"></div>
+        <input id="newPizzaFoto" placeholder="Foto/link" style="margin-top:8px">
+        <button class="btn btnRed" onclick="addMenuItem('pizzas')">Adicionar pizza</button>
+        <div id="editPizzas" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card pad">
+        <h3>💰 Tamanhos</h3>
+        <div class="row3"><input id="newTamNome" placeholder="Tamanho"><input id="newTamPreco" type="number" step="0.01" placeholder="Preço"><input id="newTamMax" type="number" step="1" placeholder="Sabores"></div>
+        <button class="btn btnRed" onclick="addMenuItem('tamanhos')">Adicionar tamanho</button>
+        <div id="editTamanhos" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card pad">
+        <h3>🥟 Esfihas</h3>
+        <div class="row"><input id="newEsfihaNome" placeholder="Nome"><input id="newEsfihaPreco" type="number" step="0.01" placeholder="Preço"></div>
+        <input id="newEsfihaDesc" placeholder="Ingredientes" style="margin-top:8px">
+        <input id="newEsfihaFoto" placeholder="Foto/link" style="margin-top:8px">
+        <button class="btn btnRed" onclick="addMenuItem('esfihas')">Adicionar esfiha</button>
+        <div id="editEsfihas" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card pad">
+        <h3>🥤 Bebidas</h3>
+        <div class="row"><input id="newBebidaNome" placeholder="Nome"><input id="newBebidaPreco" type="number" step="0.01" placeholder="Preço"></div>
+        <input id="newBebidaFoto" placeholder="Foto/link" style="margin-top:8px">
+        <button class="btn btnRed" onclick="addMenuItem('bebidas')">Adicionar bebida</button>
+        <div id="editBebidas" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card pad">
+        <h3>➕ Extras</h3>
+        <div class="row"><input id="newExtraNome" placeholder="Nome"><input id="newExtraPreco" type="number" step="0.01" placeholder="Preço"></div>
+        <input id="newExtraDesc" placeholder="Descrição" style="margin-top:8px">
+        <input id="newExtraFoto" placeholder="Foto/link" style="margin-top:8px">
+        <button class="btn btnRed" onclick="addMenuItem('extras')">Adicionar extra</button>
+        <div id="editExtras" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card pad">
+        <h3>🧀 Bordas</h3>
+        <input id="newBordaNome" placeholder="Nome da borda">
+        <button class="btn btnRed" onclick="addMenuItem('bordas')">Adicionar borda</button>
+        <button class="btn btnLight" style="margin-top:8px" onclick="resetarTudo()">Restaurar padrão</button>
+        <div id="editBordas" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="cartBar">
+  <div class="cartInfo">
+    <b id="cartTitle">Pedido vazio</b>
+    <span id="cartSub">Anote o pedido recebido pelo WhatsApp</span>
+  </div>
+  <button class="btn btnGold" onclick="go('pedidos')">Ver pedidos</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const DEFAULT_DATA = {"loja": {"nome": "PR Pizza", "subtitulo": "Atendente • WhatsApp • Estoque • Caixa", "whatsapp": "5577981679449", "enderecoRetirada": "Travessa Minas Gerais, nº 30, Ibicoara-BA", "corPrincipal": "#b1121d", "corSecundaria": "#e42b32", "corDestaque": "#ffbd44"}, "automacao": {"tudoAutomatico": true, "estoqueAutomatico": true, "caixaAutomatico": true, "imprimirAutomatico": false, "alertaEstoque": true}, "taxas": [3, 5, 10], "pagamentos": ["PIX", "Dinheiro", "Cartão"], "tiposPedido": ["Entrega", "Retirada", "Mesa"], "status": ["Recebido", "Em preparo", "Pronto", "Saiu para entrega", "Finalizado"], "modeloPedido": "🍕 PEDIDO ANOTADO #{numero} - {loja}\\nOrigem: {origem}\\n\\n{itens}\\n\\nSubtotal: {subtotal}\\nTaxa: {taxa}\\nTOTAL: {total}\\n\\nCliente: {cliente}\\nTelefone: {telefone}\\nTipo: {tipo}\\n{linhaEndereco}{linhaMesa}Pagamento: {pagamento}\\n{linhaTroco}Observação: {observacao}", "modeloItem": "{idx}. {qtd}x {nome}\\n{desc}\\nValor: {valor}", "tamanhos": [{"nome": "Pequena", "preco": 42, "max": 2}, {"nome": "Média", "preco": 49, "max": 2}, {"nome": "Grande", "preco": 56, "max": 2}, {"nome": "Família", "preco": 63, "max": 3}], "bordas": ["Catupiry", "Cheddar", "Sem borda"], "pizzas": [{"nome": "Alho", "ingredientes": "Molho de tomate, muçarela, alho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Atum", "ingredientes": "Molho de tomate, muçarela, atum, cebola, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Bacon", "ingredientes": "Molho de tomate, muçarela, bacon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Brócolis", "ingredientes": "Molho de tomate, muçarela, brócolis, orégano e azeitona.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Calabresa", "ingredientes": "Molho de tomate, muçarela, calabresa, cebola, azeitona e orégano.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Calabresa Especial", "ingredientes": "Molho de tomate, muçarela, calabresa, bacon, cebola, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Crocante", "ingredientes": "Molho de tomate, presunto, muçarela, bacon, batata palha, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango", "ingredientes": "Molho de tomate, muçarela, frango, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango com Catupiry", "ingredientes": "Molho de tomate, muçarela, frango, catupiry, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango com Cheddar", "ingredientes": "Molho de tomate, muçarela, frango, cheddar, azeitona e orégano.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango Caipira", "ingredientes": "Molho de tomate, muçarela, frango, catupiry, milho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango Especial", "ingredientes": "Molho de tomate, muçarela, frango, milho, bacon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Lombo", "ingredientes": "Molho de tomate, muçarela, lombo, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Lombo com Champignon", "ingredientes": "Molho de tomate, muçarela, lombo, champignon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Marguerita", "ingredientes": "Molho de tomate, muçarela, tomate, manjericão, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Milho", "ingredientes": "Molho de tomate, muçarela, milho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Muçarela", "ingredientes": "Molho de tomate, muçarela, tomate, orégano e azeitona.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Napolitana", "ingredientes": "Molho de tomate, muçarela, tomate, parmesão, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Palmito", "ingredientes": "Molho de tomate, muçarela, palmito, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Portuguesa", "ingredientes": "Molho de tomate, muçarela, presunto, ovo, milho, ervilha, cebola, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Tradicional", "ingredientes": "Molho de tomate, muçarela, presunto, tomate, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Vegetariana", "ingredientes": "Molho de tomate, muçarela, milho, ervilha, brócolis, tomate, palmito, champignon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Baiana", "ingredientes": "Molho de tomate, muçarela, calabresa, bacon, pimenta, cebola, orégano e azeitona.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Campestre", "ingredientes": "Molho de tomate, muçarela, bacon, milho, tomate, ervilha, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Carioca", "ingredientes": "Molho de tomate, muçarela, palmito, milho, catupiry, azeitona e orégano.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Carne Seca", "ingredientes": "Molho de tomate, muçarela, carne seca, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Carne Seca com Catupiry", "ingredientes": "Molho de tomate, muçarela, carne seca, catupiry, pimenta, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Champignon", "ingredientes": "Molho de tomate, muçarela, champignon, azeitona e orégano.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Dois Queijos", "ingredientes": "Molho de tomate, muçarela, catupiry, orégano e azeitona.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Grega", "ingredientes": "Molho de tomate, muçarela, calabresa, milho, catupiry, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Jardineira", "ingredientes": "Molho de tomate, muçarela, milho, ervilha, catupiry, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Mariana", "ingredientes": "Molho de tomate, muçarela, atum, tomate, azeitona e orégano.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Mineira", "ingredientes": "Molho de tomate, muçarela, bacon, catupiry, milho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Paulista", "ingredientes": "Molho de tomate, muçarela, presunto, palmito, champignon, bacon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Primavera", "ingredientes": "Molho de tomate, muçarela, brócolis, champignon, palmito, alho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Quatro Carnes", "ingredientes": "Molho de tomate, muçarela, calabresa, presunto, lombo, bacon, orégano e azeitona.", "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Quatro Queijos", "ingredientes": "Molho de tomate, muçarela, cheddar, catupiry, parmesão, orégano e azeitona.", "foto": "https://images.pexels.com/photos/708587/pexels-photo-708587.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Sertaneja", "ingredientes": "Molho de tomate, muçarela, lombo, milho, bacon, alho, orégano e azeitona.", "foto": "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Toscana", "ingredientes": "Molho de tomate, muçarela, calabresa, orégano e azeitona.", "foto": "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Três Queijos", "ingredientes": "Molho de tomate, muçarela, catupiry, cheddar, orégano e azeitona.", "foto": "https://images.pexels.com/photos/4109084/pexels-photo-4109084.jpeg?auto=compress&cs=tinysrgb&w=600"}], "esfihas": [{"nome": "Atum", "ingredientes": "Muçarela, atum e cebola.", "preco": 6, "foto": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Bacon", "ingredientes": "Muçarela e bacon.", "preco": 6, "foto": "https://images.pexels.com/photos/6941028/pexels-photo-6941028.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Brócolis", "ingredientes": "Muçarela e brócolis.", "preco": 6, "foto": "https://images.pexels.com/photos/6941037/pexels-photo-6941037.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Calabresa", "ingredientes": "Muçarela e calabresa.", "preco": 6, "foto": "https://images.pexels.com/photos/6941030/pexels-photo-6941030.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Champignon", "ingredientes": "Muçarela e champignon.", "preco": 6, "foto": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango", "ingredientes": "Muçarela e frango.", "preco": 6, "foto": "https://images.pexels.com/photos/6941028/pexels-photo-6941028.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango com Catupiry", "ingredientes": "Muçarela, frango desfiado e catupiry.", "preco": 6, "foto": "https://images.pexels.com/photos/6941037/pexels-photo-6941037.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Frango com Cheddar", "ingredientes": "Muçarela, frango e cheddar.", "preco": 6, "foto": "https://images.pexels.com/photos/6941030/pexels-photo-6941030.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Milho", "ingredientes": "Muçarela e milho.", "preco": 6, "foto": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Muçarela", "ingredientes": "Muçarela, tomate e orégano.", "preco": 6, "foto": "https://images.pexels.com/photos/6941028/pexels-photo-6941028.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Palmito", "ingredientes": "Muçarela e palmito.", "preco": 6, "foto": "https://images.pexels.com/photos/6941037/pexels-photo-6941037.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Dois Queijos Catupiry", "ingredientes": "Muçarela e catupiry.", "preco": 6, "foto": "https://images.pexels.com/photos/6941030/pexels-photo-6941030.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Dois Queijos Cheddar", "ingredientes": "Muçarela e cheddar.", "preco": 6, "foto": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=600"}], "bebidas": [{"nome": "Água Mineral 250ml", "preco": 3, "foto": "https://images.pexels.com/photos/2983101/pexels-photo-2983101.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Guaraná 1L", "preco": 8, "foto": "https://images.pexels.com/photos/2775860/pexels-photo-2775860.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Guaraná 2L", "preco": 13, "foto": "https://images.pexels.com/photos/544961/pexels-photo-544961.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Coca-Cola 1L", "preco": 10, "foto": "https://images.pexels.com/photos/2668308/pexels-photo-2668308.jpeg?auto=compress&cs=tinysrgb&w=600"}, {"nome": "Coca-Cola 2L", "preco": 14.5, "foto": "https://images.pexels.com/photos/2775860/pexels-photo-2775860.jpeg?auto=compress&cs=tinysrgb&w=600"}], "extras": [{"nome": "Adicional de Catupiry", "descricao": "Porção extra de catupiry.", "preco": 4, "foto": "https://images.pexels.com/photos/4109996/pexels-photo-4109996.jpeg?auto=compress&cs=tinysrgb&w=600", "ativo": true}, {"nome": "Adicional de Cheddar", "descricao": "Porção extra de cheddar.", "preco": 4, "foto": "https://images.pexels.com/photos/1435907/pexels-photo-1435907.jpeg?auto=compress&cs=tinysrgb&w=600", "ativo": true}, {"nome": "Combo Pizza + Refrigerante", "descricao": "Use como exemplo de combo editável.", "preco": 0, "foto": "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=600", "ativo": false}]};
+const LS_CFG="pr_atendente_full_edit_cfg_v1";
+const LS_CART="pr_atendente_full_edit_cart_v1";
+const LS_PEDIDOS="pr_atendente_full_edit_pedidos_v1";
+const LS_ESTOQUE="pr_atendente_full_edit_estoque_v1";
+const LS_EST_MOVS="pr_atendente_full_edit_movs_v1";
+const LS_CAIXA="pr_atendente_full_edit_caixa_v1";
+let db=null;
+function cloneData(obj){return JSON.parse(JSON.stringify(obj||{}));}
+function deepMergeDefault(base, saved){
+  const out=cloneData(base);
+  if(!saved || typeof saved!=="object") return out;
+  Object.keys(saved).forEach(k=>{
+    const v=saved[k];
+    if(Array.isArray(out[k])) out[k]=Array.isArray(v)&&v.length?v:out[k];
+    else if(out[k] && typeof out[k]==="object" && !Array.isArray(out[k])) out[k]=deepMergeDefault(out[k],v);
+    else if(v!==undefined && v!==null && v!=="") out[k]=v;
+  });
+  return out;
+}
+function normalizeConfig(raw){
+  const c=deepMergeDefault(DEFAULT_DATA, raw||{});
+  c.loja=c.loja||cloneData(DEFAULT_DATA.loja);
+  c.automacao=c.automacao||cloneData(DEFAULT_DATA.automacao);
+  c.taxas=Array.isArray(c.taxas)&&c.taxas.length?c.taxas:cloneData(DEFAULT_DATA.taxas);
+  c.pagamentos=Array.isArray(c.pagamentos)&&c.pagamentos.length?c.pagamentos:cloneData(DEFAULT_DATA.pagamentos);
+  c.tiposPedido=Array.isArray(c.tiposPedido)&&c.tiposPedido.length?c.tiposPedido:cloneData(DEFAULT_DATA.tiposPedido);
+  c.status=Array.isArray(c.status)&&c.status.length?c.status:cloneData(DEFAULT_DATA.status);
+  c.tamanhos=Array.isArray(c.tamanhos)&&c.tamanhos.length?c.tamanhos:cloneData(DEFAULT_DATA.tamanhos);
+  c.bordas=Array.isArray(c.bordas)&&c.bordas.length?c.bordas:cloneData(DEFAULT_DATA.bordas);
+  c.pizzas=Array.isArray(c.pizzas)&&c.pizzas.length?c.pizzas:cloneData(DEFAULT_DATA.pizzas);
+  c.esfihas=Array.isArray(c.esfihas)&&c.esfihas.length?c.esfihas:cloneData(DEFAULT_DATA.esfihas);
+  c.bebidas=Array.isArray(c.bebidas)&&c.bebidas.length?c.bebidas:cloneData(DEFAULT_DATA.bebidas);
+  c.extras=Array.isArray(c.extras)?c.extras:cloneData(DEFAULT_DATA.extras);
+  c.modeloPedido=c.modeloPedido||DEFAULT_DATA.modeloPedido;
+  c.modeloItem=c.modeloItem||DEFAULT_DATA.modeloItem;
+  return c;
+}
+function readJSONSafe(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"null")||fallback}catch(e){return fallback}}
+let cfg=normalizeConfig(readJSONSafe(LS_CFG,{}));
+let cart=[];
+try{cart=JSON.parse(sessionStorage.getItem(LS_CART)||"[]")||[]}catch(e){cart=[]}
+
+function money(v){return (Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function id(){return Date.now()+"_"+Math.random().toString(36).slice(2,8)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function norm(s){return String(s||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function saveCfg(){cfg=normalizeConfig(cfg);localStorage.setItem(LS_CFG,JSON.stringify(cfg)); if(db) db.ref("atendente/config").set(cfg).catch(console.warn)}
+function saveCart(){sessionStorage.setItem(LS_CART,JSON.stringify(cart))}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2300)}
+function applyTheme(){
+  cfg=normalizeConfig(cfg);
+  document.documentElement.style.setProperty("--red",cfg.loja.corPrincipal||"#b1121d");
+  document.documentElement.style.setProperty("--red2",cfg.loja.corSecundaria||"#e42b32");
+  document.documentElement.style.setProperty("--gold",cfg.loja.corDestaque||"#ffbd44");
+  document.getElementById("uiStoreName").textContent=cfg.loja.nome||"PR Pizza";
+  document.getElementById("uiStoreSub").textContent=cfg.loja.subtitulo||"Atendente";
+}
+function initFirebase(){
+  try{
+    if(window.PR_FIREBASE_CONFIG && !String(window.PR_FIREBASE_CONFIG.apiKey||"").includes("COLE_AQUI")){
+      firebase.initializeApp(window.PR_FIREBASE_CONFIG); db=firebase.database();
+    }
+  }catch(e){console.warn(e)}
+}
+async function loadOnline(){
+  if(!db) return;
+  try{
+    const c=await db.ref("atendente/config").once("value"); if(c.exists()){cfg=normalizeConfig(c.val());localStorage.setItem(LS_CFG,JSON.stringify(cfg));}
+    const e=await db.ref("atendente/estoque").once("value"); if(e.exists()) localStorage.setItem(LS_ESTOQUE,JSON.stringify(e.val()));
+    const p=await db.ref("atendente/pedidos").once("value"); if(p.exists()) localStorage.setItem(LS_PEDIDOS,JSON.stringify(Object.values(p.val()).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))));
+    const cx=await db.ref("atendente/caixa").once("value"); if(cx.exists()) localStorage.setItem(LS_CAIXA,JSON.stringify(cx.val()));
+  }catch(e){console.warn(e)}
+}
+
+function go(idSec){
+  document.querySelectorAll("main section").forEach(s=>s.classList.add("hide"));
+  document.getElementById(idSec).classList.remove("hide");
+  const map={lancar:0,pedidos:1,estoque:2,caixa:3,editarTudo:4};
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===map[idSec]));
+  if(idSec==="pedidos")renderPedidos();
+  if(idSec==="estoque")renderEstoque();
+  if(idSec==="caixa")renderCaixa();
+  if(idSec==="editarTudo")renderEditarTudo();
+}
+
+function setAuto(key,val){cfg.automacao[key]=val;saveCfg();renderAutomation();toast("Automação salva.")}
+function renderAutomation(){
+  autoTudo.checked=!!cfg.automacao.tudoAutomatico;
+  autoEstoque.checked=!!cfg.automacao.estoqueAutomatico;
+  autoCaixa.checked=!!cfg.automacao.caixaAutomatico;
+  autoPrint.checked=!!cfg.automacao.imprimirAutomatico;
+}
+
+function renderSelects(){
+  orderType.innerHTML=cfg.tiposPedido.map(x=>`<option>${esc(x)}</option>`).join("");
+  payment.innerHTML=cfg.pagamentos.map(x=>`<option>${esc(x)}</option>`).join("");
+  movForma.innerHTML=cfg.pagamentos.concat(["Outro"]).map(x=>`<option>${esc(x)}</option>`).join("");
+  pizzaTamanho.innerHTML=cfg.tamanhos.map((x,i)=>`<option value="${i}">${esc(x.nome)} - ${money(x.preco)} • até ${x.max||2} sabores</option>`).join("");
+  pizzaBorda.innerHTML=cfg.bordas.map((x,i)=>`<option value="${i}">${esc(x)}</option>`).join("");
+  const opts=cfg.pizzas.map((x,i)=>`<option value="${i}">${esc(x.nome)}</option>`).join("");
+  pizzaSabor1.innerHTML=opts;
+  pizzaSabor2.innerHTML='<option value="">Sem segundo sabor</option>'+opts;
+  pizzaSabor3.innerHTML='<option value="">Sem terceiro sabor</option>'+opts;
+  taxGrid.innerHTML=cfg.taxas.map(v=>`<button type="button" class="choice" data-fee="${Number(v)||0}" onclick="setDeliveryFee(${Number(v)||0})"><b>${money(v)}</b><span>Taxa</span></button>`).join("")+
+  `<button type="button" class="choice" data-fee="0" onclick="setDeliveryFee(0)"><b>R$ 0,00</b><span>Sem taxa</span></button>`;
+  toggleType(); toggleChange(); renderTipo(); syncTaxButtons();
+}
+function toggleType(){
+  const t=orderType.value;
+  addressBox.classList.toggle("hide",t!=="Entrega");
+  mesaBox.classList.toggle("hide",t!=="Mesa");
+  renderCart();
+}
+function toggleChange(){changeBox.classList.toggle("hide",payment.value!=="Dinheiro")}
+function setDeliveryFee(v){deliveryFee.value=Number(v)||0;syncTaxButtons();renderCart()}
+function syncTaxButtons(){const val=Number(deliveryFee.value)||0;document.querySelectorAll("#taxGrid .choice").forEach(b=>b.classList.toggle("active",Number(b.dataset.fee)===val))}
+
+function getListByType(t){
+  if(t==="esfiha")return cfg.esfihas;
+  if(t==="bebida")return cfg.bebidas;
+  if(t==="extra")return cfg.extras.filter(x=>x.ativo!==false);
+  return [];
+}
+function productDesc(p){return p.ingredientes||p.descricao||p.desc||""}
+function productPrice(p){return Number(p.preco)||0}
+function renderTipo(){
+  const t=tipoItem.value;
+  pizzaBox.classList.toggle("hide",t!=="pizza");
+  simpleBox.classList.toggle("hide",!["esfiha","bebida","extra"].includes(t));
+  manualBox.classList.toggle("hide",t!=="manual");
+  renderProdutoSelect(); renderResumoItem();
+}
+function renderProdutoSelect(){
+  const list=getListByType(tipoItem.value);
+  const q=norm(produtoSearch.value);
+  const filtered=list.filter(x=>norm(x.nome).includes(q)||norm(productDesc(x)).includes(q));
+  produtoSelect.innerHTML=filtered.map((x,i)=>`<option value="${list.indexOf(x)}">${esc(x.nome)} - ${money(productPrice(x))}</option>`).join("");
+}
+function getItemDraft(){
+  const tipo=tipoItem.value;
+  const qtd=Math.max(1,Number(itemQtd.value)||1);
+  const obs=itemObs.value.trim();
+  if(tipo==="pizza"){
+    const tam=cfg.tamanhos[Number(pizzaTamanho.value)]||cfg.tamanhos[0];
+    const s1=cfg.pizzas[Number(pizzaSabor1.value)]||cfg.pizzas[0];
+    const s2=pizzaSabor2.value!==""?cfg.pizzas[Number(pizzaSabor2.value)]:null;
+    const s3=pizzaSabor3.value!==""?cfg.pizzas[Number(pizzaSabor3.value)]:null;
+    const sabores=[s1?.nome,s2?.nome,s3?.nome].filter(Boolean).join(" / ");
+    const desc=`Sabores: ${sabores}\nBorda: ${cfg.bordas[Number(pizzaBorda.value)]||"Sem borda"}${pizzaObs.value.trim()?"\nObs pizza: "+pizzaObs.value.trim():""}${obs?"\nObs item: "+obs:""}`;
+    return {id:id(),tipo:"Pizza",nome:`Pizza ${tam.nome}`,desc,qtd,preco:Number(tam.preco)||0};
+  }
+  if(tipo==="manual"){
+    return {id:id(),tipo:"Manual",nome:manualNome.value.trim()||"Item manual",desc:obs,qtd,preco:Number(manualPreco.value)||0};
+  }
+  const list=getListByType(tipo);
+  const p=list[Number(produtoSelect.value)]||list[0];
+  if(!p)return {id:id(),tipo:"Item",nome:"Produto",desc:obs,qtd,preco:0};
+  const label=tipo==="esfiha"?"Esfiha":tipo==="bebida"?"Bebida":"Extra";
+  const item={id:id(),tipo:label,nome:p.nome,desc:[productDesc(p),obs?"Obs: "+obs:""].filter(Boolean).join("\n"),qtd,preco:productPrice(p),stockId:p.stockId||""};
+  return ensureStockForCartItem(item);
+}
+function renderResumoItem(){
+  const it=getItemDraft();
+  resumoItem.innerHTML=`<b>${it.qtd}x ${esc(it.nome)}</b><br>${esc(it.desc).replace(/\n/g,"<br>")}<br><span class="price">Valor: ${money(it.preco*it.qtd)}</span>`;
+}
+function adicionarItem(){
+  cart.push(getItemDraft()); saveCart(); renderCart(); toast("Item adicionado.");
+}
+function changeQty(cid,delta){
+  const it=cart.find(x=>x.id===cid); if(!it)return;
+  it.qtd+=delta; if(it.qtd<=0)cart=cart.filter(x=>x.id!==cid);
+  saveCart(); renderCart();
+}
+function totals(){
+  const subtotal=cart.reduce((s,it)=>s+(Number(it.preco)||0)*(Number(it.qtd)||0),0);
+  const taxa=orderType.value==="Entrega"?(Number(deliveryFee.value)||0):0;
+  return {subtotal,taxa,total:subtotal+taxa};
+}
+function renderCart(){
+  cartItems.innerHTML=cart.length?cart.map(it=>`<div class="item"><div class="itemTop"><div><b>${it.qtd}x ${esc(it.nome)}</b><small>${esc(it.desc||"").replace(/\n/g,"<br>")}</small><span class="price">${money(it.preco*it.qtd)}</span></div><div class="qty"><button onclick="changeQty('${it.id}',-1)">−</button><span>${it.qtd}</span><button onclick="changeQty('${it.id}',1)">+</button></div></div></div>`).join(""):'<div class="note">Nenhum item lançado ainda.</div>';
+  const t=totals();
+  totalBox.innerHTML=`<div class="line"><span>Subtotal</span><b>${money(t.subtotal)}</b></div><div class="line"><span>Taxa</span><b>${money(t.taxa)}</b></div><div class="line big"><span>Total</span><b>${money(t.total)}</b></div>`;
+  cartTitle.textContent=cart.length?`Pedido atual • ${money(t.total)}`:"Pedido vazio";
+  cartSub.textContent=cart.length?cart.map(i=>`${i.qtd}x ${i.nome}`).join(" • "):"Anote o pedido recebido pelo WhatsApp";
+}
+
+function getPedidos(){return JSON.parse(localStorage.getItem(LS_PEDIDOS)||"[]")}
+function setPedidos(arr){localStorage.setItem(LS_PEDIDOS,JSON.stringify(arr)); if(db){const obj={};arr.forEach(p=>obj[p.id]=p); db.ref("atendente/pedidos").set(obj).catch(console.warn)}}
+function nextNumber(){
+  const key="pr_atendente_full_edit_next_num";
+  const n=Number(localStorage.getItem(key)||"1"); localStorage.setItem(key,String(n+1));
+  return String(n).padStart(4,"0");
+}
+function buildPedido(){
+  const t=totals();
+  return {
+    id:"ped_"+id(), numero:nextNumber(), loja:cfg.loja.nome||"PR Pizza", origem:"Atendente WhatsApp",
+    createdAt:new Date().toISOString(), data:new Date().toLocaleDateString("pt-BR"), hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),
+    cliente:clientName.value.trim(), telefone:clientPhone.value.trim(), tipo:orderType.value,
+    endereco:clientAddress.value.trim(), mesa:mesaNum.value.trim(), pagamento:payment.value, troco:changeFor.value.trim(),
+    observacao:generalObs.value.trim(), itens:JSON.parse(JSON.stringify(cart)), subtotal:t.subtotal,taxa:t.taxa,total:t.total,status:cfg.status[0]||"Recebido"
+  };
+}
+function formatItem(it,idx){
+  return (cfg.modeloItem||DEFAULT_DATA.modeloItem)
+  .replaceAll("{{idx}}",idx).replaceAll("{idx}",idx).replaceAll("{{qtd}}",it.qtd).replaceAll("{qtd}",it.qtd).replaceAll("{{nome}}",it.nome).replaceAll("{nome}",it.nome)
+  .replaceAll("{{desc}}",it.desc||"").replaceAll("{desc}",it.desc||"").replaceAll("{{valor}}",money(it.preco*it.qtd)).replaceAll("{valor}",money(it.preco*it.qtd));
+}
+function pedidoTexto(p){
+  const itens=p.itens.map((it,i)=>formatItem(it,i+1)).join("\n\n");
+  const repl={
+    numero:p.numero, loja:p.loja||cfg.loja.nome, origem:p.origem||"Atendente", itens,
+    subtotal:money(p.subtotal), taxa:money(p.taxa), total:money(p.total),
+    cliente:p.cliente||"-", telefone:p.telefone||"-", tipo:p.tipo||"-",
+    linhaEndereco:p.tipo==="Entrega"?`Endereço: ${p.endereco||"-"}\n`:"",
+    linhaMesa:p.tipo==="Mesa"?`Mesa: ${p.mesa||"-"}\n`:"",
+    pagamento:p.pagamento||"-", linhaTroco:p.troco?`Troco: ${p.troco}\n`:"",
+    observacao:p.observacao||"-"
+  };
+  let txt=cfg.modeloPedido||DEFAULT_DATA.modeloPedido;
+  Object.keys(repl).forEach(k=>{txt=txt.replaceAll("{{"+k+"}}",repl[k]).replaceAll("{"+k+"}",repl[k]);});
+  return txt;
+}
+function copiarPedidoAtual(){
+  if(!cart.length) return toast("Pedido vazio.");
+  navigator.clipboard.writeText(pedidoTexto(buildPedido())); toast("Pedido copiado.");
+}
+async function salvarPedido(printNow=false){
+  if(!cart.length) return toast("Adicione itens.");
+  let p=buildPedido();
+  if(cfg.automacao.estoqueAutomatico){autoLinkStock(true);p.itens=p.itens.map(ensureStockForCartItem);cart=p.itens;saveCart();}
+  if(!confirmarEstoque(p)) return;
+  const arr=getPedidos(); arr.unshift(p); setPedidos(arr);
+  if(cfg.automacao.estoqueAutomatico) baixaEstoque(p);
+  if(cfg.automacao.caixaAutomatico) registrarCaixaPedido(p);
+  if(db){try{await db.ref("atendente/ultimoPedido").set(p)}catch(e){console.warn(e)}}
+  if(printNow || cfg.automacao.imprimirAutomatico) imprimirPedidoObj(p);
+  cart=[];saveCart();renderCart();renderEstoque();renderCaixa();
+  toast("Pedido salvo automático.");
+  go("pedidos");
+}
+function renderPedidos(){
+  const arr=getPedidos();
+  pedidoList.innerHTML=arr.length?arr.map(p=>`<div class="pedido">
+    <div class="pedidoTop"><div><b>#${p.numero} • ${esc(p.tipo)} • ${esc(p.cliente||"Cliente")}</b><br><small>${new Date(p.createdAt).toLocaleString("pt-BR")} • ${money(p.total)}</small></div><span class="status">${esc(p.status)}</span></div>
+    <div class="pedidoText">${esc(pedidoTexto(p))}</div>
+    <div class="actions">${cfg.status.map(st=>`<button class="btn btnSmall btnLight" onclick="updateStatus('${p.id}','${esc(st)}')">${esc(st)}</button>`).join("")}
+    <button class="btn btnSmall btnGold" onclick="imprimirPedidoSalvo('${p.id}')">Imprimir</button>
+    <button class="btn btnSmall btnLight" onclick="navigator.clipboard.writeText(pedidoTexto(getPedidos().find(x=>x.id==='${p.id}')));toast('Copiado')">Copiar</button>
+    <button class="btn btnSmall btnLight" onclick="removePedido('${p.id}')">Excluir</button></div>
+  </div>`).join(""):'<div class="note">Nenhum pedido salvo ainda.</div>';
+}
+function updateStatus(pid,st){const arr=getPedidos().map(p=>p.id===pid?{...p,status:st}:p);setPedidos(arr);renderPedidos();}
+function removePedido(pid){if(confirm("Excluir pedido?")){setPedidos(getPedidos().filter(p=>p.id!==pid));renderPedidos();}}
+function limparFinalizados(){setPedidos(getPedidos().filter(p=>!["Finalizado","Fechado","Entregue"].includes(p.status)));renderPedidos();}
+function exportarPedidos(){navigator.clipboard.writeText(getPedidos().map(p=>pedidoTexto(p)).join("\n\n----------------\n\n"));toast("Pedidos copiados.");}
+
+function getStock(){return JSON.parse(localStorage.getItem(LS_ESTOQUE)||"[]")}
+function setStock(arr){localStorage.setItem(LS_ESTOQUE,JSON.stringify(arr)); if(db)db.ref("atendente/estoque").set(arr).catch(console.warn)}
+function getMovs(){return JSON.parse(localStorage.getItem(LS_EST_MOVS)||"[]")}
+function setMovs(arr){localStorage.setItem(LS_EST_MOVS,JSON.stringify(arr)); if(db)db.ref("atendente/estoqueMovimentos").set(arr).catch(console.warn)}
+function ensureStockForProduct(prod,categoria){
+  if(!prod||!prod.nome)return "";
+  let stock=getStock(); let st=stock.find(x=>x.id===prod.stockId)||stock.find(x=>norm(x.nome)===norm(prod.nome)||norm(x.linkNome)===norm(prod.nome));
+  if(!st){
+    st={id:"stk_"+id(),nome:prod.nome,categoria,qtd:0,un:"un",min:0,custo:0,linkNome:prod.nome,baixaPorPedido:1,obs:"Criado automático",createdAt:new Date().toISOString()};
+    stock.unshift(st); setStock(stock);
+  }
+  prod.stockId=st.id; return st.id;
+}
+function autoLinkStock(silent){
+  cfg.bebidas.forEach(p=>ensureStockForProduct(p,"Bebida"));
+  cfg.esfihas.forEach(p=>ensureStockForProduct(p,"Esfiha"));
+  cfg.extras.forEach(p=>ensureStockForProduct(p,"Extra"));
+  saveCfg(); renderEstoque(); if(!silent)toast("Estoque vinculado automaticamente.");
+}
+function ensureStockForCartItem(it){
+  if(it.stockId||!cfg.automacao.estoqueAutomatico)return it;
+  const map={Bebida:cfg.bebidas,Esfiha:cfg.esfihas,Extra:cfg.extras};
+  const arr=map[it.tipo]; if(arr){const p=arr.find(x=>norm(x.nome)===norm(it.nome)); if(p)it.stockId=ensureStockForProduct(p,it.tipo);}
+  return it;
+}
+function confirmarEstoque(p){
+  const stock=getStock(); const faltas=[];
+  p.itens.forEach(it=>{if(it.stockId){const st=stock.find(s=>s.id===it.stockId); if(st){const baixa=Number(it.qtd)*(Number(st.baixaPorPedido)||1); if(Number(st.qtd)<baixa)faltas.push(`${it.nome}: tem ${st.qtd} ${st.un}, precisa ${baixa} ${st.un}`)}}});
+  return faltas.length?confirm("Estoque insuficiente:\n"+faltas.join("\n")+"\n\nSalvar mesmo assim?"):true;
+}
+function baixaEstoque(p){
+  let stock=getStock(), movs=getMovs();
+  p.itens.forEach(it=>{if(it.stockId){const st=stock.find(s=>s.id===it.stockId); if(st){const baixa=Number(it.qtd)*(Number(st.baixaPorPedido)||1); st.qtd=Number(st.qtd)-baixa; movs.unshift({id:"mov_"+id(),stockId:st.id,nome:st.nome,tipo:"saida",qtd:baixa,motivo:"Pedido #"+p.numero,createdAt:new Date().toISOString()})}}});
+  setStock(stock); setMovs(movs);
+}
+function addStock(){
+  const arr=getStock(); arr.unshift({id:"stk_"+id(),nome:stockName.value.trim(),categoria:stockCat.value.trim()||"Produto",qtd:Number(stockQty.value)||0,un:stockUnit.value.trim()||"un",min:Number(stockMin.value)||0,custo:Number(stockCost.value)||0,linkNome:stockLink.value.trim(),baixaPorPedido:1,obs:"",createdAt:new Date().toISOString()});
+  setStock(arr); stockName.value=stockCat.value=stockQty.value=stockMin.value=stockCost.value=stockLink.value=""; stockUnit.value="un"; renderEstoque(); toast("Estoque adicionado.");
+}
+function saveStockEdit(sid){
+  const arr=getStock(); const s=arr.find(x=>x.id===sid); if(!s)return;
+  ["nome","categoria","un","linkNome","obs"].forEach(k=>s[k]=document.getElementById("stk_"+k+"_"+sid).value.trim());
+  ["qtd","min","custo","baixaPorPedido"].forEach(k=>s[k]=Number(document.getElementById("stk_"+k+"_"+sid).value)||0);
+  setStock(arr); renderEstoque(); toast("Estoque editado.");
+}
+function moveStock(sid,dir){
+  const qtd=Number(prompt(dir>0?"Quantidade de entrada:":"Quantidade de saída:")||"0"); if(!qtd)return;
+  const arr=getStock(); const s=arr.find(x=>x.id===sid); if(!s)return;
+  s.qtd=Number(s.qtd)+(dir>0?qtd:-qtd); setStock(arr);
+  const movs=getMovs(); movs.unshift({id:"mov_"+id(),stockId:s.id,nome:s.nome,tipo:dir>0?"entrada":"saida",qtd,motivo:dir>0?"Entrada manual":"Saída manual",createdAt:new Date().toISOString()}); setMovs(movs);
+  renderEstoque();
+}
+function delStock(sid){if(confirm("Excluir item do estoque?")){setStock(getStock().filter(x=>x.id!==sid));renderEstoque();}}
+function renderEstoque(){
+  const stock=getStock(); const low=stock.filter(s=>Number(s.qtd)<=Number(s.min));
+  stockAlerts.innerHTML=low.length?low.map(s=>`<div class="stockItem"><b>${esc(s.nome)}</b><small>Atual: ${s.qtd} ${s.un} • Mínimo: ${s.min} ${s.un}</small></div>`).join(""):'<div class="note success">Nenhum alerta.</div>';
+  stockList.innerHTML=stock.length?stock.map(s=>`<div class="stockItem">
+    <b>${esc(s.nome)}</b><small>${esc(s.categoria)} • Custo: ${money(s.custo)} • Vínculo: ${esc(s.linkNome||"manual")}</small><span class="stockBadge ${Number(s.qtd)<=Number(s.min)?"low":""}">Estoque: ${s.qtd} ${esc(s.un)} • mínimo ${s.min}</span>
+    <div class="editorBox">
+      <div class="row3"><input id="stk_nome_${s.id}" value="${esc(s.nome)}"><input id="stk_categoria_${s.id}" value="${esc(s.categoria)}"><input id="stk_un_${s.id}" value="${esc(s.un)}"></div>
+      <div class="row3"><input id="stk_qtd_${s.id}" type="number" step="0.01" value="${s.qtd}"><input id="stk_min_${s.id}" type="number" step="0.01" value="${s.min}"><input id="stk_custo_${s.id}" type="number" step="0.01" value="${s.custo}"></div>
+      <div class="row"><input id="stk_linkNome_${s.id}" value="${esc(s.linkNome||"")}" placeholder="Vínculo"><input id="stk_baixaPorPedido_${s.id}" type="number" step="0.01" value="${s.baixaPorPedido||1}" placeholder="Baixa por pedido"></div>
+      <input id="stk_obs_${s.id}" value="${esc(s.obs||"")}" placeholder="Observação">
+      <div class="actions"><button class="btn btnSmall btnGreen" onclick="saveStockEdit('${s.id}')">Salvar</button><button class="btn btnSmall btnGold" onclick="moveStock('${s.id}',1)">Entrada</button><button class="btn btnSmall btnLight" onclick="moveStock('${s.id}',-1)">Saída</button><button class="btn btnSmall btnLight" onclick="delStock('${s.id}')">Excluir</button></div>
+    </div>
+  </div>`).join(""):'<div class="note">Nenhum estoque cadastrado.</div>';
+}
+function mostrarMovimentosEstoque(){
+  const movs=getMovs(); stockMovList.innerHTML=movs.length?'<h3>Histórico</h3>'+movs.slice(0,100).map(m=>`<div class="movItem"><b>${esc(m.tipo)} • ${esc(m.nome)}</b><small>Qtd: ${m.qtd} • ${esc(m.motivo)} • ${new Date(m.createdAt).toLocaleString("pt-BR")}</small></div>`).join(""):'<div class="note">Sem movimentos.</div>';
+}
+function exportarEstoque(){navigator.clipboard.writeText(getStock().map(s=>`${s.nome}: ${s.qtd} ${s.un}`).join("\n"));toast("Estoque copiado.");}
+
+function getCaixa(){return JSON.parse(localStorage.getItem(LS_CAIXA)||"{\"aberto\":false,\"movs\":[]}")}
+function setCaixa(c){localStorage.setItem(LS_CAIXA,JSON.stringify(c)); if(db)db.ref("atendente/caixa").set(c).catch(console.warn)}
+function autoOpenCaixa(){
+  const c=getCaixa(); if(!c.aberto){c.aberto=true;c.abertura=new Date().toISOString();c.movs=c.movs||[];c.movs.unshift({id:"cx_"+id(),tipo:"abertura",valor:0,forma:"",desc:"Abertura automática",createdAt:new Date().toISOString()});setCaixa(c);} return c;
+}
+function registrarCaixaPedido(p){
+  if(cfg.automacao.caixaAutomatico)autoOpenCaixa();
+  const c=getCaixa(); c.movs=c.movs||[]; c.movs.unshift({id:"cx_"+id(),tipo:"entrada",valor:p.total,forma:p.pagamento,desc:"Venda pedido #"+p.numero,pedidoId:p.id,createdAt:new Date().toISOString()}); setCaixa(c);
+}
+function abrirCaixa(){const c=getCaixa();c.aberto=true;c.abertura=new Date().toISOString();c.movs=c.movs||[];c.movs.unshift({id:"cx_"+id(),tipo:"abertura",valor:Number(caixaInicial.value)||0,forma:"Dinheiro",desc:"Abertura de caixa",createdAt:new Date().toISOString()});setCaixa(c);renderCaixa();}
+function fecharCaixa(){const c=getCaixa();c.aberto=false;c.fechamento=new Date().toISOString();setCaixa(c);renderCaixa();}
+function addMovCaixa(){
+  const c=getCaixa(); c.movs=c.movs||[]; c.movs.unshift({id:"cx_"+id(),tipo:movTipo.value,valor:Number(movValor.value)||0,forma:movForma.value,desc:movDesc.value.trim(),createdAt:new Date().toISOString()}); setCaixa(c); movValor.value=movDesc.value=""; renderCaixa();
+}
+function renderCaixa(){
+  const c=getCaixa(); const movs=c.movs||[];
+  const entrada=movs.filter(m=>m.tipo==="entrada"||m.tipo==="abertura").reduce((s,m)=>s+Number(m.valor||0),0);
+  const saida=movs.filter(m=>m.tipo==="saida").reduce((s,m)=>s+Number(m.valor||0),0);
+  const total=entrada-saida;
+  caixaStatus.innerHTML=c.aberto?`Caixa aberto desde ${c.abertura?new Date(c.abertura).toLocaleString("pt-BR"):""}`:"Caixa fechado";
+  caixaResumo.innerHTML=`<div class="kpi"><span>Entradas</span><b>${money(entrada)}</b></div><div class="kpi"><span>Saídas</span><b>${money(saida)}</b></div><div class="kpi"><span>Saldo</span><b>${money(total)}</b></div><div class="kpi"><span>Status</span><b>${c.aberto?"Aberto":"Fechado"}</b></div>`;
+  caixaList.innerHTML=movs.length?movs.map(m=>`<div class="movItem"><b>${esc(m.tipo)} • ${money(m.valor)}</b><small>${esc(m.forma||"")} • ${esc(m.desc||"")} • ${new Date(m.createdAt).toLocaleString("pt-BR")}</small></div>`).join(""):'<div class="note">Sem movimentos.</div>';
+}
+function copiarResumoCaixa(){navigator.clipboard.writeText(caixaList.innerText);toast("Resumo copiado.");}
+function limparCaixa(){if(confirm("Limpar caixa?")){setCaixa({aberto:false,movs:[]});renderCaixa();}}
+
+function renderEditarTudo(){
+  cfgNomeLoja.value=cfg.loja.nome; cfgSubtitulo.value=cfg.loja.subtitulo; cfgWhats.value=cfg.loja.whatsapp; cfgEndereco.value=cfg.loja.enderecoRetirada;
+  cfgCor1.value=cfg.loja.corPrincipal; cfgCor2.value=cfg.loja.corSecundaria; cfgCor3.value=cfg.loja.corDestaque;
+  cfgAutoTudo.checked=cfg.automacao.tudoAutomatico; cfgAutoEstoque.checked=cfg.automacao.estoqueAutomatico; cfgAutoCaixa.checked=cfg.automacao.caixaAutomatico; cfgAutoPrint.checked=cfg.automacao.imprimirAutomatico; cfgAlertaEstoque.checked=cfg.automacao.alertaEstoque;
+  cfgModeloItem.value=cfg.modeloItem; cfgModeloPedido.value=cfg.modeloPedido;
+  renderListEditor("taxas",editTaxas,true); renderListEditor("pagamentos",editPagamentos); renderListEditor("status",editStatus);
+  renderMenuEditor("pizzas",editPizzas); renderMenuEditor("tamanhos",editTamanhos); renderMenuEditor("esfihas",editEsfihas); renderMenuEditor("bebidas",editBebidas); renderMenuEditor("extras",editExtras); renderBordaEditor();
+}
+function renderListEditor(key,box,isNumber=false){
+  box.innerHTML=cfg[key].map((v,i)=>`<div class="item"><div class="row"><input id="list_${key}_${i}" value="${esc(v)}"><button class="btn btnSmall btnGreen" onclick="saveListValue('${key}',${i},${isNumber})">Salvar</button><button class="btn btnSmall btnLight" onclick="delListValue('${key}',${i})">Excluir</button></div></div>`).join("");
+}
+function saveListValue(key,i,isNumber){cfg[key][i]=isNumber?Number(document.getElementById(`list_${key}_${i}`).value)||0:document.getElementById(`list_${key}_${i}`).value.trim();saveCfg();renderSelects();renderEditarTudo();}
+function delListValue(key,i){cfg[key].splice(i,1);saveCfg();renderSelects();renderEditarTudo();}
+function addListValue(key,inputId){const el=document.getElementById(inputId);let v=el.value.trim();if(!v)return;if(key==="taxas")v=Number(v)||0;cfg[key].push(v);el.value="";saveCfg();renderSelects();renderEditarTudo();}
+
+function renderMenuEditor(type,box){
+  const arr=cfg[type];
+  box.innerHTML=arr.map((p,i)=>`<div class="item">
+    <div class="editorBox">
+      <label>Nome</label><input id="${type}_nome_${i}" value="${esc(p.nome)}"><label>Descrição/ingredientes</label><input id="${type}_desc_${i}" value="${esc(p.ingredientes||p.descricao||p.desc||"")}">
+      <div class="row3"><input id="${type}_preco_${i}" type="number" step="0.01" value="${p.preco??""}" placeholder="Preço"><input id="${type}_max_${i}" type="number" step="1" value="${p.max??""}" placeholder="Máx sabores"><input id="${type}_ativo_${i}" value="${p.ativo===false?"false":"true"}" placeholder="ativo true/false"></div>
+      <input id="${type}_foto_${i}" value="${esc(p.foto||"")}" placeholder="Foto/link">
+      <div class="actions"><button class="btn btnSmall btnGreen" onclick="saveMenuItem('${type}',${i})">Salvar</button><button class="btn btnSmall btnLight" onclick="delMenuItem('${type}',${i})">Excluir</button></div>
+    </div></div>`).join("")||'<div class="note">Nenhum item.</div>';
+}
+function saveMenuItem(type,i){
+  const p=cfg[type][i]; p.nome=document.getElementById(`${type}_nome_${i}`).value.trim(); const desc=document.getElementById(`${type}_desc_${i}`).value.trim();
+  if(type==="pizzas"||type==="esfihas")p.ingredientes=desc; else p.descricao=desc;
+  const preco=document.getElementById(`${type}_preco_${i}`).value; if(preco!=="")p.preco=Number(preco)||0;
+  const max=document.getElementById(`${type}_max_${i}`).value; if(max!=="")p.max=Number(max)||1;
+  p.ativo=document.getElementById(`${type}_ativo_${i}`).value.trim()!=="false";
+  p.foto=document.getElementById(`${type}_foto_${i}`).value.trim();
+  if(cfg.automacao.estoqueAutomatico&&["esfihas","bebidas","extras"].includes(type))ensureStockForProduct(p,type==="bebidas"?"Bebida":type==="esfihas"?"Esfiha":"Extra");
+  saveCfg();renderSelects();renderEditarTudo();toast("Item editado.");
+}
+function delMenuItem(type,i){cfg[type].splice(i,1);saveCfg();renderSelects();renderEditarTudo();}
+function addMenuItem(type){
+  if(type==="pizzas")cfg.pizzas.push({nome:newPizzaNome.value.trim(),ingredientes:newPizzaDesc.value.trim(),foto:newPizzaFoto.value.trim()});
+  if(type==="tamanhos")cfg.tamanhos.push({nome:newTamNome.value.trim(),preco:Number(newTamPreco.value)||0,max:Number(newTamMax.value)||2});
+  if(type==="esfihas"){const p={nome:newEsfihaNome.value.trim(),ingredientes:newEsfihaDesc.value.trim(),preco:Number(newEsfihaPreco.value)||0,foto:newEsfihaFoto.value.trim()}; if(cfg.automacao.estoqueAutomatico)ensureStockForProduct(p,"Esfiha");cfg.esfihas.push(p)}
+  if(type==="bebidas"){const p={nome:newBebidaNome.value.trim(),preco:Number(newBebidaPreco.value)||0,foto:newBebidaFoto.value.trim()}; if(cfg.automacao.estoqueAutomatico)ensureStockForProduct(p,"Bebida");cfg.bebidas.push(p)}
+  if(type==="extras"){const p={nome:newExtraNome.value.trim(),descricao:newExtraDesc.value.trim(),preco:Number(newExtraPreco.value)||0,foto:newExtraFoto.value.trim(),ativo:true}; if(cfg.automacao.estoqueAutomatico)ensureStockForProduct(p,"Extra");cfg.extras.push(p)}
+  if(type==="bordas")cfg.bordas.push(newBordaNome.value.trim());
+  document.querySelectorAll("#editarTudo input").forEach(inp=>{if(inp.id.startsWith("new"))inp.value=""});
+  saveCfg();renderSelects();renderEditarTudo();
+}
+function renderBordaEditor(){
+  editBordas.innerHTML=cfg.bordas.map((b,i)=>`<div class="item"><div class="row"><input id="borda_${i}" value="${esc(b)}"><button class="btn btnSmall btnGreen" onclick="cfg.bordas[${i}]=document.getElementById('borda_${i}').value;saveCfg();renderSelects();renderEditarTudo()">Salvar</button><button class="btn btnSmall btnLight" onclick="cfg.bordas.splice(${i},1);saveCfg();renderSelects();renderEditarTudo()">Excluir</button></div></div>`).join("");
+}
+function saveGeneralConfig(){
+  cfg.loja.nome=cfgNomeLoja.value; cfg.loja.subtitulo=cfgSubtitulo.value; cfg.loja.whatsapp=cfgWhats.value; cfg.loja.enderecoRetirada=cfgEndereco.value; cfg.loja.corPrincipal=cfgCor1.value; cfg.loja.corSecundaria=cfgCor2.value; cfg.loja.corDestaque=cfgCor3.value;
+  saveCfg();applyTheme();toast("Loja e visual salvos.");
+}
+function saveAutomationConfig(){
+  cfg.automacao.tudoAutomatico=cfgAutoTudo.checked; cfg.automacao.estoqueAutomatico=cfgAutoEstoque.checked; cfg.automacao.caixaAutomatico=cfgAutoCaixa.checked; cfg.automacao.imprimirAutomatico=cfgAutoPrint.checked; cfg.automacao.alertaEstoque=cfgAlertaEstoque.checked;
+  saveCfg();renderAutomation();toast("Automação salva.");
+}
+function saveTemplateConfig(){cfg.modeloItem=cfgModeloItem.value;cfg.modeloPedido=cfgModeloPedido.value;saveCfg();toast("Modelo salvo.");}
+function resetarTudo(){if(confirm("Restaurar todos os padrões?")){cfg=structuredClone(DEFAULT_DATA);saveCfg();applyTheme();renderSelects();renderEditarTudo();}}
+
+function pedidoImpressaoHTML(p){
+  const texto=esc(pedidoTexto(p));
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pedido #${p.numero}</title><style>@page{size:80mm auto;margin:4mm}body{font-family:Arial,monospace;font-size:12px;color:#000}.cupom{width:72mm;margin:auto}.topo{text-align:center;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:6px}pre{white-space:pre-wrap;line-height:1.25}.rodape{text-align:center;border-top:1px dashed #000;margin-top:8px;padding-top:6px;font-size:11px}</style></head><body><div class="cupom"><div class="topo"><b>${esc(cfg.loja.nome)}</b><br>Pedido / Comanda</div><pre>${texto}</pre><div class="rodape">Impresso em ${new Date().toLocaleString("pt-BR")}</div></div><script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script></body></html>`;
+}
+function imprimirPedidoObj(p){const w=window.open("","_blank","width=420,height=700"); if(!w)return toast("Libere pop-ups."); w.document.write(pedidoImpressaoHTML(p)); w.document.close(); w.focus();}
+function imprimirPedidoAtual(){if(!cart.length)return toast("Pedido vazio."); imprimirPedidoObj(buildPedido());}
+function imprimirPedidoSalvo(pid){const p=getPedidos().find(x=>x.id===pid); if(p)imprimirPedidoObj(p);}
+function limparAtual(){if(confirm("Limpar pedido atual?")){cart=[];saveCart();renderCart();}}
+
+function init(){
+  initFirebase();
+  loadOnline().then(()=>{
+    try{
+      cfg=normalizeConfig(cfg);
+      applyTheme(); renderAutomation(); renderSelects(); renderCart();
+      if(cfg.automacao.estoqueAutomatico) autoLinkStock(true);
+      ["clientName","clientPhone","clientAddress","mesaNum","generalObs"].forEach(x=>{const el=document.getElementById(x); if(el)el.addEventListener("input",renderCart);});
+    }catch(e){
+      console.error(e);
+      alert("Corrigi o arquivo, mas seus dados antigos estavam em formato diferente. Clique OK para restaurar a tela do atendente.");
+      cfg=cloneData(DEFAULT_DATA); saveCfg(); localStorage.removeItem(LS_CART); sessionStorage.removeItem(LS_CART); location.reload();
+    }
+  });
+}
+init();
+</script>
+</body>
+</html>
